@@ -25,6 +25,8 @@ ignorance=1
  */
 @Question("単語のカウントを表示する")
 export class Q003 implements IQuestion {
+    constructor(private testConsole: TestConsole) {
+    }
     /**
      * 以下の記述で assets/q003.txt の内容が入る
      */
@@ -33,6 +35,30 @@ export class Q003 implements IQuestion {
 
     async main() {
         // TestConsoleを使って出力してください
+        var wordsArray = this.fileData.content.replace("\n"," ").split(" ");
+        for ( var i in wordsArray ){
+            if ( wordsArray[i].indexOf(".") != -1 ){
+                wordsArray[i] = wordsArray[i].replace(".","");
+            }
+            if ( wordsArray[i].indexOf(",") != -1 ){
+                wordsArray[i] = wordsArray[i].replace(",","");
+            }
+            if ( wordsArray[i].indexOf("\n") != -1 ){
+                wordsArray[i] = wordsArray[i].replace("\n","");
+            }
+        }
+        var result = [];
+        for ( var i in wordsArray ){
+            var count = 0;
+            for ( var k in wordsArray ){
+                if ( wordsArray[k] == wordsArray[i] ){
+                    if ( Number(k) != Number(i) ) wordsArray.splice(Number(k),1);
+                    count ++;
+                }
+            }
+            result.push(wordsArray[i] + "=" + count);
+        }
+        this.testConsole.println(result.toString());
     }
 }
 // 完成までの時間: xx時間 xx分
