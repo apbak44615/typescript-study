@@ -43,6 +43,33 @@ class PlusValue implements IValue {
     }
 }
 
+class MinusValue implements IValue {
+    public execute(stack: number[]): void {
+        // スタックに値を積む
+        let right = stack.pop();
+        let left = stack.pop();
+        stack.push(left - right);
+    }
+}
+
+class MultiValue implements IValue {
+    public execute(stack: number[]): void {
+        // スタックに値を積む
+        let right = stack.pop();
+        let left = stack.pop();
+        stack.push(left * right);
+    }
+}
+
+class DivideValue implements IValue {
+    public execute(stack: number[]): void {
+        // スタックに値を積む
+        let right = stack.pop();
+        let left = stack.pop();
+        stack.push(left / right);
+    }
+}
+
 // TODO 必要なクラスを追加する
 
 /**
@@ -70,7 +97,6 @@ class PlusValue implements IValue {
 export class Q006 implements IQuestion {
     constructor(private testConsole: TestConsole) {
     }
-
     /**
      * 逆ポーランドで記載された1行のテキストを分解する
      * @param lineText 1行テキスト
@@ -82,6 +108,15 @@ export class Q006 implements IQuestion {
             switch (text) {
                 case '+':   // 足し算
                     resultList.push(new PlusValue());
+                    break;
+                case '-':   
+                    resultList.push(new MinusValue());
+                    break;
+                case '*':   
+                    resultList.push(new MultiValue());
+                    break;
+                case '/':   
+                    resultList.push(new DivideValue());
                     break;
                 default:    // その他は数値として扱う
                     resultList.push(new DecimalValue(text));
@@ -98,8 +133,13 @@ export class Q006 implements IQuestion {
             if (line == "exit" || line == "quit") {
                 break;
             }
-            let values = this.parseLine(line);
+            let values : any = this.parseLine(line);
             // TODO 計算して結果を表示する
+            var stack = [];
+            for ( let i in values ){
+                values[i].execute(stack)
+            } 
+            this.testConsole.println(stack.toString());           
         }
     }
 }

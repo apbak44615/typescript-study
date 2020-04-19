@@ -13,12 +13,12 @@ export class Q001 implements IQuestion {
      * 実行時に自動生成される際、testConsoleが渡されてくる
      * @param testConsole コンソール操作用のオブジェクト
      */
-    constructor(testConsole: TestConsole) {
+    constructor(private testConsole: TestConsole) {
     }
 
     async main() {
         // コンストラクタを正しく修正したら、以下のコメントを外してください
-        //this.testConsole.println("Hello World.");
+        this.testConsole.println("Hello World.");
     }
 }
 // 完成までの時間: xx時間 xx分

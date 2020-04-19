@@ -1,4 +1,5 @@
 import { IQuestion, TestConsole, Question } from '../study.service';
+import { TestConsoleComponent } from '../test-console/test-console.component';
 
 /**
  * Q002 並べ替える
@@ -21,6 +22,8 @@ import { IQuestion, TestConsole, Question } from '../study.service';
  */
 @Question("正しく並べ替える")
 export class Q002 implements IQuestion {
+    constructor(private testConsole: TestConsole) {
+    }
     /**
      * データ一覧
      */
@@ -49,6 +52,13 @@ export class Q002 implements IQuestion {
 
     async main() {
         // TestConsoleを使って出力してください
+        var dataList_correct = []; 
+        for (var i in this.dataList){
+           var position = Number(this.dataList[i].split(',')[0]) - 1;
+           var data = this.dataList[i].split(',')[1];
+           dataList_correct[position] = ( position + 1 ) + "," + data;
+        }
+        this.testConsole.println(dataList_correct.toString());
     }
 }
 // 完成までの時間: xx時間 xx分
