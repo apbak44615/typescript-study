@@ -47,8 +47,27 @@ export class Q002 implements IQuestion {
         "9,清水"
     ];
 
+    constructor(private testConsole: TestConsole) { }
+
     async main() {
         // TestConsoleを使って出力してください
+        this.dataList
+            .map((elementString) => elementString.split(','))
+            .sort((elementArrayA, elementArrayB) => {
+                const numberA = parseInt(elementArrayA[0], 10);
+                const numberB = parseInt(elementArrayB[0], 10);
+                if (numberA < numberB) {
+                    return -1;
+                } else if (numberA > numberB) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            })
+            .map((elementArray) => elementArray.join(','))
+            .forEach((elementString) =>
+                this.testConsole.println(elementString)
+            );
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 15分

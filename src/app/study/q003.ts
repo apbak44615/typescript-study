@@ -31,8 +31,40 @@ export class Q003 implements IQuestion {
     @TestFile("q003.txt")
     private fileData: FileData;
 
+    constructor(private testConsole: TestConsole) { }
+
     async main() {
-        // TestConsoleを使って出力してください
+        const wordArray = this.fileData.content
+            // スペース改行で分割し単語単位の配列へ変換
+            .split(/\s/)
+            // I以外を小文字へ変換
+            .map((word) => {
+                if (word === "I") {
+                    return word;
+                } else {
+                    return word.toLowerCase();
+                }
+            })
+            // 単語として許容する文字以外を削除
+            .map((word) =>
+                // lowerCaseWord.replace(/[\,\.\;]/g, "")
+                word.replace(/[^a-zI'’\-]/g, "")
+            )
+            // 削除された結果空文字になった単語を削除
+            .filter((word) => word)
+            // アルファベット辞書順に並び変え
+            .sort();
+
+        // 単語の重複数をカウントし表示
+        const uniqueWordArray = {};
+        wordArray.forEach((word) => {
+            uniqueWordArray[word] = uniqueWordArray[word]
+                ? uniqueWordArray[word] + 1
+                : 1;
+        });
+        Object.keys(uniqueWordArray).forEach((word) => {
+            this.testConsole.println(word + "=" + uniqueWordArray[word]);
+        });
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 1時間 20分

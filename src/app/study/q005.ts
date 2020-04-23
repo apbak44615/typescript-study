@@ -5,20 +5,29 @@ import { IQuestion, TestConsole, Question, TestFile, FileData } from '../study.s
  * 自由に修正してかまいません
  */
 class WorkData {
-    /** 社員番号 */
-    private number: string;
+    constructor(
+        /** 社員番号 */
+        private _number: string,
+        /** 役職 */
+        private _position: string,
+        /** Pコード */
+        private _pCode: string,
+        /** 作業時間(分) */
+        private _workTime: number,
+    ) { }
 
-    /** 部署 */
-    private department: string;
-
-    /** 役職 */
-    private position: string;
-
-    /** Pコード */
-    private pCode: string;
-
-    /** 作業時間(分) */
-    private workTime: number;
+    get number() {
+        return this._number;
+    }
+    get position() {
+        return this._position;
+    }
+    get pCode() {
+        return this._pCode;
+    }
+    get workTime() {
+        return this._workTime;
+    }
 }
 
 /**
@@ -55,8 +64,45 @@ export class Q005 implements IQuestion {
     @TestFile("q005.txt")
     private fileData: FileData;
 
+    constructor(private testConsole: TestConsole) { }
+
     async main() {
-        // TestConsoleを使って出力してください
+        const lineArray = this.fileData.content.split('\n');
+        // タイトル行を削除
+        lineArray.shift();
+        const workDataArray = lineArray.map(lineString => {
+            const columnArray = lineString.split(",");
+            return new WorkData(columnArray[0], columnArray[1], columnArray[3], parseInt(columnArray[4], 10));
+        });
+
+        // 役職別の合計作業時間の表示
+        this.printTotalWorkTime(workDataArray, "position");
+
+        // Pコード別の合計作業時間の表示
+        this.printTotalWorkTime(workDataArray, "pCode");
+
+        // 社員番号別の合計作業時間の表示
+        this.printTotalWorkTime(workDataArray, "number");
+    }
+
+    /**
+     * 作業時間を合計しコンソールに表示
+     * 
+     * @param workDataArray 作業時間管理データリスト
+     * @param aggregationKey 作業時間を集約する作業時間管理データのキー名
+     */
+    private printTotalWorkTime(workDataArray: WorkData[], aggregationKey: string) {
+        const totalArray = {};
+        workDataArray.forEach((workData) => {
+            totalArray[workData[aggregationKey]] = totalArray[workData[aggregationKey]]
+                ? totalArray[workData[aggregationKey]] + workData.workTime
+                : workData.workTime;
+        });
+        Object.keys(totalArray).forEach((key) => {
+            this.testConsole.println(key + ": "
+                + Math.floor(totalArray[key] / 60) + "時間"
+                + totalArray[key] % 60 + "分");
+        });
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 55分

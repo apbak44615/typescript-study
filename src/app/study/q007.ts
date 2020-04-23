@@ -1,4 +1,5 @@
 import { IQuestion, TestConsole, Question } from '../study.service';
+import { directiveCreate } from '@angular/core/src/render3/instructions';
 
 /**
  * Q007 最短経路探索
@@ -25,10 +26,89 @@ XXXXXXXXX
  */
 @Question("迷路の最短距離検索")
 export class Q007 implements IQuestion {
+    private maze: string[];
+    constructor(private testConsole: TestConsole) {
+        this.maze = this.makeMaze();
+    }
+
     async main() {
-        // TestConsoleを使って出力してください
-        let maze = this.makeMaze();
-        // TODO 迷路の最短距離を探す
+        // this.maze.forEach(line => this.testConsole.println(line));
+        // 幅優先探索でスタートからゴールまでのルートを探索する
+        const start = this.searchPoint("S");
+        const end = this.searchPoint("E");
+        const queue: Array<Point> = [];
+        // 探索済みの座標のindex配列
+        const visitedIndexArray: Array<number> = [];
+        queue.push(start);
+        const startIndex = this.pointToIndex(start);
+        visitedIndexArray[startIndex] = startIndex;
+        let isGoaled;
+
+        while (!isGoaled && queue.length > 0) {
+            const current = queue.shift();
+            // 次の座標（隣り合う上下左右の四つ）
+            const nextArray = [new Point(current.x, current.y - 1), new Point(current.x, current.y + 1),
+            new Point(current.x - 1, current.y), new Point(current.x + 1, current.y)];
+            // 次の座標の値をチェック
+            for (const next of nextArray) {
+                // 未探索かつ壁でないか
+                const nextIndex = this.pointToIndex(next);
+                if (visitedIndexArray[nextIndex] == undefined &&
+                    this.maze[next.y][next.x] !== "X") {
+                    visitedIndexArray[nextIndex] = this.pointToIndex(current);
+                    // ゴールなら終了
+                    if (next.equals(end)) {
+                        isGoaled = true;
+                        break;
+                    }
+                    // ゴールでないなら探索続行
+                    else {
+                        queue.push(next);
+                    }
+                }
+            };
+        }
+
+        if (isGoaled) {
+            // かかった歩数を計算
+            const endIndex = this.pointToIndex(end);
+            let beforeIndex = visitedIndexArray[endIndex];
+            let step = 1;
+            while (beforeIndex !== startIndex) {
+                beforeIndex = visitedIndexArray[beforeIndex];
+                step++;
+            }
+            this.testConsole.println(step.toString());
+        } else {
+            this.testConsole.println("-1");
+        }
+    }
+
+    /**
+     * 座標をindexへ変換する
+     * 
+     * @param point 座標
+     * @returns index
+     */
+    private pointToIndex(point: Point) {
+        return point.x + this.maze[0].length * point.y;
+    }
+
+    /**
+     * 指定文字の座標を検索
+     * 複数存在する場合は最初にヒットしたものを返却する
+     * 
+     * @param value 検索対象の文字
+     * @returns 検索対象の文字の座標
+     */
+    private searchPoint(value: string) {
+        for (let y = 0; y < this.maze.length; y++) {
+            for (let x = 0; x < this.maze[y].length; x++) {
+                if (this.maze[y][x] === value) {
+                    return new Point(x, y);
+                }
+            }
+        }
     }
 
     /**
@@ -90,4 +170,19 @@ export class Q007 implements IQuestion {
         return data;
     }
 }
-// 完成までの時間: xx時間 xx分
+
+class Point {
+    constructor(private _x: number, private _y: number) { }
+
+    get x() {
+        return this._x;
+    }
+    get y() {
+        return this._y;
+    }
+
+    equals(other: Point) {
+        return this._x === other.x && this._y === other.y ? true : false;
+    }
+}
+// 完成までの時間: 2時間 45分
