@@ -9,14 +9,16 @@ export class AppPage {
     return element(by.css('app-root h1')).getText();
   }
 
-  execQuestion(value: string) {
-    element.all(by.css('app-root option')).then(items => {
-      items.find(async item => {await item.getAttribute('value') === value}).click();
-    });
-    element(by.css('app-root button')).click();
+  async execQuestion(value: string) {
+    await element.all(by.css('app-root option')).filter(async function(el, index) {
+      return el.getAttribute('value').then(function(str) {
+        return str === value;
+      });
+    }).first().click();
+    await element(by.css('app-root button')).click();
   }
 
-  getConsoleText() {
+ async getConsoleText(): Promise<string> {
     return element(by.css('app-test-console')).getText();
   }
 }

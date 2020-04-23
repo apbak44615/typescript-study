@@ -15,4 +15,4 @@ describe('q001', () => {
         expect(testConsole.println.calls.count()).toBe(1);
         expect(testConsole.println).toHaveBeenCalledWith("Hello World.");
     });
-  });
+});

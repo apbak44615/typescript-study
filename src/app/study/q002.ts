@@ -22,6 +22,13 @@ import { IQuestion, TestConsole, Question } from '../study.service';
 @Question("正しく並べ替える")
 export class Q002 implements IQuestion {
     /**
+     * コンストラクタ
+     * 実行時に自動生成される際、testConsoleが渡されてくる
+     * @param testConsole コンソール操作用のオブジェクト
+     */
+    constructor(private testConsole: TestConsole) {}
+
+    /**
      * データ一覧
      */
     private dataList = [
@@ -47,8 +54,13 @@ export class Q002 implements IQuestion {
         "9,清水"
     ];
 
+    private getId(data: string): number {
+        return Number.parseInt(data.slice(0, data.indexOf(',')));
+    }
+
     async main() {
         // TestConsoleを使って出力してください
+        this.dataList.sort((a: string, b: string): number => this.getId(a) - this.getId(b)).forEach(el => this.testConsole.println(el));
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 3時間 00分
