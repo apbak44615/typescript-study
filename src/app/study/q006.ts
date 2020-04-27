@@ -113,7 +113,7 @@ export class Q006 implements IQuestion {
      */
     private parseLine(lineText: string): IValue[] {
         let resultList: IValue[] = [];
-        for (let text of lineText.split(/[\s]+/g)) {
+        for (let text of lineText.split(new RegExp("[\\s]+", "g"))) {
             switch (text) {
                 case '+':   // 足し算
                     resultList.push(new PlusValue());

@@ -36,7 +36,7 @@ export class Q003 implements IQuestion {
     async main() {
         const wordArray = this.fileData.content
             // スペース改行で分割し単語単位の配列へ変換
-            .split(/\s/)
+            .split(new RegExp("\\s"))
             // I以外を小文字へ変換
             .map((word) => {
                 if (word === "I") {
@@ -47,8 +47,7 @@ export class Q003 implements IQuestion {
             })
             // 単語として許容する文字以外を削除
             .map((word) =>
-                // lowerCaseWord.replace(/[\,\.\;]/g, "")
-                word.replace(/[^a-zI'’\-]/g, "")
+                word.replace(new RegExp("[^a-zI'’\\-]", "g"), "")
             )
             // 削除された結果空文字になった単語を削除
             .filter((word) => word)

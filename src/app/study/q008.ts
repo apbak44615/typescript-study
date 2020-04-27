@@ -53,10 +53,119 @@ export class Q008 implements IQuestion {
     @SourceMap
     sourceList: FileData[];
 
+    // '
+    private readonly SINGLE_QUOTE = "'";
+    private readonly SINGLE_QUOTE_PATTERN = new RegExp("(?<!\\\\)'", "g");
+    // ""
+    private readonly DOUBLE_QUOTE = '"';
+    private readonly DOUBLE_QUOTE_PATTERN = new RegExp('(?<!\\\\)"', "g");
+    // `
+    private readonly BACK_QUOTE = '`';
+    private readonly BACK_QUOTE_PATTERN = new RegExp("(?<!\\\\)`", "g");
+    // //
+    private readonly COMMENT_SLASH_PATTERN = new RegExp("\\/\\/", "g");
+    // /*
+    private readonly COMMENT_ASTERISK_START = "/*";
+    private readonly COMMENT_ASTERISK_START_PATTERN = new RegExp("\\/\\*", "g");
+    // */
+    private readonly COMMENT_ASTERISK_END_PATTERN = new RegExp("\\*\\/", "g");
+
+    constructor(private testConsole: TestConsole) { };
+
     async main() {
-        // TestConsoleを使って出力してください
+
+        this.sourceList.forEach(source => {
+            let addDelimiter;
+            const lines = source.content.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const { isDisplay, notClosedDefimiter } = this.checkLine(addDelimiter ? addDelimiter + line : line);
+                if (isDisplay) {
+                    this.print(source.fileName, i + 1, line);
+                }
+                addDelimiter = notClosedDefimiter;
+            }
+        });
     }
 
+    private checkLine(line: string) {
+        let checkStartIndex = 0;
+        let isDisplay = false;
+        let notClosedDefimiter;
+        while (true) {
+            const checkTargetLine = checkStartIndex !== 0 ? line.slice(checkStartIndex) : line;
+            const sqIndex = checkTargetLine.search(this.SINGLE_QUOTE_PATTERN);
+            const dqIndex = checkTargetLine.search(this.DOUBLE_QUOTE_PATTERN);
+            const bqIndex = checkTargetLine.search(this.BACK_QUOTE_PATTERN);
+            const slashIndex = checkTargetLine.search(this.COMMENT_SLASH_PATTERN);
+            const asteriskIndex = checkTargetLine.search(this.COMMENT_ASTERISK_START_PATTERN);
+
+            const delimiterIndex = Math.min.apply(null,
+                [sqIndex, dqIndex, bqIndex, slashIndex, asteriskIndex].filter(index => index !== -1));
+            if (delimiterIndex === NaN) {
+                break;
+            }
+
+            let nextDelimiterIndex = -1;
+            switch (delimiterIndex) {
+                case sqIndex:
+                    nextDelimiterIndex = checkTargetLine.slice(delimiterIndex + this.SINGLE_QUOTE.length)
+                        .search(this.SINGLE_QUOTE_PATTERN);
+                    if (nextDelimiterIndex !== -1) {
+                        checkStartIndex += delimiterIndex + nextDelimiterIndex + this.SINGLE_QUOTE.length * 2;
+                    } else {
+                        notClosedDefimiter = this.SINGLE_QUOTE;
+                    }
+                    isDisplay = true;
+                    break;
+                case dqIndex:
+                    nextDelimiterIndex = checkTargetLine.slice(delimiterIndex + this.DOUBLE_QUOTE.length)
+                        .search(this.DOUBLE_QUOTE_PATTERN);
+                    if (nextDelimiterIndex !== -1) {
+                        checkStartIndex += delimiterIndex + nextDelimiterIndex + this.DOUBLE_QUOTE.length * 2;
+                    } else {
+                        notClosedDefimiter = this.DOUBLE_QUOTE;
+                    }
+                    isDisplay = true;
+                    break;
+                case bqIndex:
+                    nextDelimiterIndex = checkTargetLine.slice(delimiterIndex + this.BACK_QUOTE.length)
+                        .search(this.BACK_QUOTE_PATTERN);
+                    if (nextDelimiterIndex !== -1) {
+                        checkStartIndex += delimiterIndex + nextDelimiterIndex + this.BACK_QUOTE.length * 2;
+                    } else {
+                        notClosedDefimiter = this.BACK_QUOTE;
+                    }
+                    isDisplay = true;
+                    break;
+                case asteriskIndex:
+                    nextDelimiterIndex = checkTargetLine.slice(delimiterIndex + this.COMMENT_ASTERISK_START.length)
+                        .search(this.COMMENT_ASTERISK_END_PATTERN);
+                    if (nextDelimiterIndex !== -1) {
+                        checkStartIndex += delimiterIndex + nextDelimiterIndex + this.COMMENT_ASTERISK_START.length * 2;
+                    } else {
+                        notClosedDefimiter = this.COMMENT_ASTERISK_START;
+                    }
+                    break;
+                case slashIndex:
+                default:
+                    break;
+            }
+
+            if (nextDelimiterIndex === -1) {
+                break;
+            }
+        }
+
+        return {
+            isDisplay,
+            notClosedDefimiter
+        };
+    }
+
+    private print(fileName: string, row: number, content: string) {
+        this.testConsole.println(fileName + '(' + row.toString() + '): ' + content);
+    }
 
     // コメントテスト用
     private dummy() {
@@ -88,4 +197,4 @@ export class Q008 implements IQuestion {
        `;
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 14時間 30分
