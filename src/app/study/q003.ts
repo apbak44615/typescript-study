@@ -26,13 +26,29 @@ ignorance=1
 @Question("単語のカウントを表示する")
 export class Q003 implements IQuestion {
     /**
+     * コンストラクタ
+     * 実行時に自動生成される際、testConsoleが渡されてくる
+     * @param testConsole コンソール操作用のオブジェクト
+     */
+    constructor(private testConsole: TestConsole) {}
+
+    /**
      * 以下の記述で assets/q003.txt の内容が入る
      */
     @TestFile("q003.txt")
     private fileData: FileData;
 
     async main() {
-        // TestConsoleを使って出力してください
+        const wordCountMap: Map<string, number> = new Map();
+        this.fileData.content.split('\n').forEach((line: string) => {
+            line.split(' ').forEach((origin: string) => {
+                let word = origin.toLowerCase().replace(/\.|,|;|–/, '').replace(/\'/,'’');
+                if(word.length > 0) wordCountMap.set(word, wordCountMap.has(word) ? wordCountMap.get(word) + 1 : 1);
+            });
+        });
+        Array.from(wordCountMap.entries()).sort().forEach(([key, value]) => {
+            this.testConsole.println(`${(key === 'i' ? key.toUpperCase() : key)}=${value}`);
+        })
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 10時間 30分
