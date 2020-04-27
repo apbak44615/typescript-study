@@ -90,4 +90,26 @@ describe("workspace-project App", () => {
       );
     });
   });
+
+  describe("Q004", () => {
+    it("should output sort calculating quantity", async () => {
+      await page.navigateTo();
+      expect(await page.getConsoleText()).toEqual("");
+
+      // exec
+      await page.execQuestion("Q004");
+
+      // check
+      const consoleText: Array<string> = (await page.getConsoleText()).split("\n");
+      expect(consoleText[0]).toEqual('"Q004"を開始します。');
+      const sortStr = consoleText[1];
+      expect(sortStr).toContain("ソートOK: ");
+      // 比較回数 n(n-1)/2 = 4950
+      expect(sortStr).toContain("比較=4950");
+      // 入れ替え 0 <= 4950
+      let exchangeCount: number = Number.parseInt(sortStr.substring(sortStr.lastIndexOf("=")+1, sortStr.length));
+      expect(0 <= exchangeCount && exchangeCount <= 4950).toBeTruthy();
+      expect(consoleText[consoleText.length - 1]).toEqual('"Q004"が終了しました。');
+    });
+  });
 });
