@@ -18,7 +18,11 @@ export class AppPage {
     await element(by.css('app-root button')).click();
   }
 
- async getConsoleText(): Promise<string> {
+  async getConsoleText(): Promise<string> {
     return element(by.css('app-test-console')).getText();
+  }
+
+  async sendKeysConsoleText(args: (string | number | Promise<string | number>)[]) {
+    await element(by.css('app-test-console textarea')).sendKeys(...args);
   }
 }

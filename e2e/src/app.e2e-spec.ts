@@ -181,4 +181,31 @@ describe("workspace-project App", () => {
       );
     });
   });
+
+  describe("Q006", () => {
+    it("should output the calculation result", async () => {
+      await page.navigateTo();
+      expect(await page.getConsoleText()).toEqual("");
+      let expectedArr = ['"Q006"を開始します。', "> "];
+
+      // exec
+      await page.execQuestion("Q006");
+      expect((await page.getConsoleText()).split("\n")).toEqual(expectedArr);
+
+      // input
+      const rpnStr = "3 1.1 0.9 + 2.0 * -";
+      await page.sendKeysConsoleText([rpnStr, Key.ENTER]);
+      expectedArr[expectedArr.length - 1] += rpnStr;
+      expectedArr.push("-1");
+      expectedArr.push("> ");
+      expect((await page.getConsoleText()).split("\n")).toEqual(expectedArr);
+
+      // input exit
+      const exitStr = "exit";
+      await page.sendKeysConsoleText([exitStr, Key.ENTER]);
+      expectedArr[expectedArr.length - 1] += exitStr;
+      expectedArr.push('"Q006"が終了しました。');
+      expect((await page.getConsoleText()).split("\n")).toEqual(expectedArr);
+    });
+  });
 });

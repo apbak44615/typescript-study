@@ -43,7 +43,41 @@ class PlusValue implements IValue {
     }
 }
 
-// TODO 必要なクラスを追加する
+/**
+ * 引き算を行うクラス
+ */
+class MinusValue implements IValue {
+    public execute(stack: number[]): void {
+        // スタックに値を積む
+        let right = stack.pop();
+        let left = stack.pop();
+        stack.push(left - right);
+    }
+}
+
+/**
+ * 掛け算を行うクラス
+ */
+class MultiplicationValue implements IValue {
+    public execute(stack: number[]): void {
+        // スタックに値を積む
+        let right = stack.pop();
+        let left = stack.pop();
+        stack.push(left * right);
+    }
+}
+
+/**
+ * 割り算を行うクラス
+ */
+class DivisionValue implements IValue {
+    public execute(stack: number[]): void {
+        // スタックに値を積む
+        let right = stack.pop();
+        let left = stack.pop();
+        stack.push(left / right);
+    }
+}
 
 /**
  * Q006 空気を読んで改修
@@ -78,10 +112,18 @@ export class Q006 implements IQuestion {
     private parseLine(lineText: string): IValue[] {
         let resultList: IValue[] = [];
         for (let text of lineText.split(/[\s]+/g)) {
-            // TODO 一部処理だけ実装
             switch (text) {
                 case '+':   // 足し算
                     resultList.push(new PlusValue());
+                    break;
+                case '-':   // 引き算
+                    resultList.push(new MinusValue());
+                    break;
+                case '*':   // 掛け算
+                    resultList.push(new MultiplicationValue());
+                    break;
+                case '/':   // 割り算
+                    resultList.push(new DivisionValue());
                     break;
                 default:    // その他は数値として扱う
                     resultList.push(new DecimalValue(text));
@@ -99,8 +141,10 @@ export class Q006 implements IQuestion {
                 break;
             }
             let values = this.parseLine(line);
-            // TODO 計算して結果を表示する
+            const stack: number[] = [];
+            values.forEach(value => value.execute(stack));
+            this.testConsole.println(`${stack[0]}`);
         }
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 3時間 0分
