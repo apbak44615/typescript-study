@@ -1,5 +1,6 @@
 import { AppPage } from "./app.po";
 import { readFileSync } from "fs";
+import { Key } from "protractor";
 
 describe("workspace-project App", () => {
   let page: AppPage;
@@ -44,18 +45,20 @@ describe("workspace-project App", () => {
       expect(await page.getConsoleText()).toEqual("");
 
       // fileの内容を一次元配列で取得
-      const fileContent:Array<string> = (() => {
+      const fileContent: Array<string> = (() => {
         const twoDimensionalArray = readFileSync("src/assets/q003.txt")
-        .toString()
-        .split("\n")
-        .map((line) =>
-          line.split(" ").map((src) => {
-            let replacedString = src.replace(/\.|,|;|–/, "").replace(/\'/, "’");
-            return replacedString === "I"
-              ? replacedString
-              : replacedString.toLowerCase();
-          })
-        );
+          .toString()
+          .split("\n")
+          .map((line) =>
+            line.split(" ").map((src) => {
+              let replacedString = src
+                .replace(/\.|,|;|–/, "")
+                .replace(/\'/, "’");
+              return replacedString === "I"
+                ? replacedString
+                : replacedString.toLowerCase();
+            })
+          );
         return new Array<string>().concat(...twoDimensionalArray);
       })();
 
@@ -63,26 +66,40 @@ describe("workspace-project App", () => {
       await page.execQuestion("Q003");
 
       // check
-      const consoleText: Array<string> = (await page.getConsoleText()).split("\n");
+      const consoleText: Array<string> = (await page.getConsoleText()).split(
+        "\n"
+      );
       expect(consoleText[0]).toEqual('"Q003"を開始します。');
       let str1 = consoleText[1];
       consoleText[1] = consoleText[2];
       consoleText[2] = str1;
       let beforePointArr: Array<number> = [];
-      for(let i = 1; i < consoleText.length - 1; i++) {
+      for (let i = 1; i < consoleText.length - 1; i++) {
         const [word, count] = consoleText[i].split("=");
         const pointArr: Array<number> = [];
-        for(let j = 0; j < word.length; j++) {
+        for (let j = 0; j < word.length; j++) {
           pointArr.push((word as string).toLowerCase().codePointAt(j) || -1);
         }
-        for(let j = 0; j < pointArr.length; j++) {
-          if(typeof beforePointArr[j] === 'undefined' || beforePointArr[j] < pointArr[j]) {
+        for (let j = 0; j < pointArr.length; j++) {
+          if (
+            typeof beforePointArr[j] === "undefined" ||
+            beforePointArr[j] < pointArr[j]
+          ) {
             j = pointArr.length;
-          } else if(pointArr[j] < beforePointArr[j] || pointArr.length < j+1) {
-            fail(`The order is different. before:${consoleText[i - 1]}, current:${consoleText[i]}`)
+          } else if (
+            pointArr[j] < beforePointArr[j] ||
+            pointArr.length < j + 1
+          ) {
+            fail(
+              `The order is different. before:${consoleText[i - 1]}, current:${
+                consoleText[i]
+              }`
+            );
           }
         }
-        expect(count).toEqual(`${fileContent.filter(el => el === word).length}`);
+        expect(count).toEqual(
+          `${fileContent.filter((el) => el === word).length}`
+        );
         beforePointArr = pointArr;
       }
       expect(consoleText[consoleText.length - 1]).toEqual(
@@ -100,16 +117,22 @@ describe("workspace-project App", () => {
       await page.execQuestion("Q004");
 
       // check
-      const consoleText: Array<string> = (await page.getConsoleText()).split("\n");
+      const consoleText: Array<string> = (await page.getConsoleText()).split(
+        "\n"
+      );
       expect(consoleText[0]).toEqual('"Q004"を開始します。');
       const sortStr = consoleText[1];
       expect(sortStr).toContain("ソートOK: ");
       // 比較回数 n(n-1)/2 = 4950
       expect(sortStr).toContain("比較=4950");
       // 入れ替え 0 <= 4950
-      let exchangeCount: number = Number.parseInt(sortStr.substring(sortStr.lastIndexOf("=")+1, sortStr.length));
+      let exchangeCount: number = Number.parseInt(
+        sortStr.substring(sortStr.lastIndexOf("=") + 1, sortStr.length)
+      );
       expect(0 <= exchangeCount && exchangeCount <= 4950).toBeTruthy();
-      expect(consoleText[consoleText.length - 1]).toEqual('"Q004"が終了しました。');
+      expect(consoleText[consoleText.length - 1]).toEqual(
+        '"Q004"が終了しました。'
+      );
     });
   });
 
@@ -122,31 +145,40 @@ describe("workspace-project App", () => {
       await page.execQuestion("Q005");
 
       // check
-      const consoleText: Array<string> = (await page.getConsoleText()).split("\n");
+      const consoleText: Array<string> = (await page.getConsoleText()).split(
+        "\n"
+      );
       expect(consoleText[0]).toEqual('"Q005"を開始します。');
       // fileの内容を2次元配列で取得
-      const workDataList:Array<Array<string>> = (() => {
+      const workDataList: Array<Array<string>> = (() => {
         const fileContent = readFileSync("src/assets/q005.txt")
-        .toString()
-        .split("\n");
+          .toString()
+          .split("\n");
         fileContent.shift();
-        return fileContent.map(src => src.split(","));
+        return fileContent.map((src) => src.split(","));
       })();
 
-      for(let i = 1; i < consoleText.length - 1; i++) {
+      for (let i = 1; i < consoleText.length - 1; i++) {
         const [field, value] = consoleText[i].split(": ");
         // 作業時間(分)合計
         let sumWorkTime = 0;
-        workDataList.filter(line => line.includes(field)).forEach(line => sumWorkTime += Number.parseInt(line[4]));
+        workDataList
+          .filter((line) => line.includes(field))
+          .forEach((line) => (sumWorkTime += Number.parseInt(line[4])));
 
         // valueを作業時間(分)に計算し直して比較
         let actualWorkTime: number = ((): number => {
           const timeIndex = value.indexOf("時間");
-          return Number.parseInt(value.substring(0, timeIndex)) * 60 + Number.parseInt(value.substring(timeIndex+2, value.indexOf("分")));
+          return (
+            Number.parseInt(value.substring(0, timeIndex)) * 60 +
+            Number.parseInt(value.substring(timeIndex + 2, value.indexOf("分")))
+          );
         })();
         expect(sumWorkTime).toEqual(actualWorkTime);
       }
-      expect(consoleText[consoleText.length - 1]).toEqual('"Q005"が終了しました。');
+      expect(consoleText[consoleText.length - 1]).toEqual(
+        '"Q005"が終了しました。'
+      );
     });
   });
 });
