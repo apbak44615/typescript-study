@@ -112,4 +112,41 @@ describe("workspace-project App", () => {
       expect(consoleText[consoleText.length - 1]).toEqual('"Q004"が終了しました。');
     });
   });
+
+  describe("Q005", () => {
+    it("work time should be aggregated and output by field", async () => {
+      await page.navigateTo();
+      expect(await page.getConsoleText()).toEqual("");
+
+      // exec
+      await page.execQuestion("Q005");
+
+      // check
+      const consoleText: Array<string> = (await page.getConsoleText()).split("\n");
+      expect(consoleText[0]).toEqual('"Q005"を開始します。');
+      // fileの内容を2次元配列で取得
+      const workDataList:Array<Array<string>> = (() => {
+        const fileContent = readFileSync("src/assets/q005.txt")
+        .toString()
+        .split("\n");
+        fileContent.shift();
+        return fileContent.map(src => src.split(","));
+      })();
+
+      for(let i = 1; i < consoleText.length - 1; i++) {
+        const [field, value] = consoleText[i].split(": ");
+        // 作業時間(分)合計
+        let sumWorkTime = 0;
+        workDataList.filter(line => line.includes(field)).forEach(line => sumWorkTime += Number.parseInt(line[4]));
+
+        // valueを作業時間(分)に計算し直して比較
+        let actualWorkTime: number = ((): number => {
+          const timeIndex = value.indexOf("時間");
+          return Number.parseInt(value.substring(0, timeIndex)) * 60 + Number.parseInt(value.substring(timeIndex+2, value.indexOf("分")));
+        })();
+        expect(sumWorkTime).toEqual(actualWorkTime);
+      }
+      expect(consoleText[consoleText.length - 1]).toEqual('"Q005"が終了しました。');
+    });
+  });
 });

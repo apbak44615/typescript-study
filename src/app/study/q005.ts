@@ -6,7 +6,7 @@ import { IQuestion, TestConsole, Question, TestFile, FileData } from '../study.s
  */
 class WorkData {
     /** 社員番号 */
-    private number: string;
+    private employeeNumber: string;
 
     /** 部署 */
     private department: string;
@@ -19,6 +19,27 @@ class WorkData {
 
     /** 作業時間(分) */
     private workTime: number;
+
+    public get getEmployeeNumber(): string {
+        return this.employeeNumber;
+    }
+
+    public get getPosition(): string {
+        return this.position;
+    }
+
+    public get getPCode(): string{
+        return this.pCode;
+    }
+
+    public get getWorkTime(): number {
+        return this.workTime;
+    }
+
+    constructor(arr: Array<string>) {
+        [this.employeeNumber, this.department, this.position, this.pCode] = arr;
+        this.workTime = Number.parseInt(arr[4]);
+    }
 }
 
 /**
@@ -52,11 +73,43 @@ T-7-30002: xx時間xx分
  */
 @Question("様々なフィールドで集計")
 export class Q005 implements IQuestion {
+    /**
+     * コンストラクタ
+     * 実行時に自動生成される際、testConsoleが渡されてくる
+     * @param testConsole コンソール操作用のオブジェクト
+     */
+    constructor(private testConsole: TestConsole) {}
+
     @TestFile("q005.txt")
     private fileData: FileData;
 
     async main() {
+        const fileDataContent: Array<string> = this.fileData.content.split("\n");
+        fileDataContent.shift();
+        const workDataList: Array<WorkData> = fileDataContent.map(str => new WorkData(str.split(",")));
+
+        const sumWorkTimeByPos: Map<string, number> = new Map();
+        const sumWorkTimeByPCode: Map<string, number> = new Map();
+        const sumWorkTimeByEmpNum: Map<string, number> = new Map();
+        workDataList.forEach(workData => {
+            const workTime = workData.getWorkTime;
+            // 役職別
+            const position = workData.getPosition;
+            sumWorkTimeByPos.set(position, sumWorkTimeByPos.has(position) ? sumWorkTimeByPos.get(position) + workTime : workTime);
+
+            // P_CODE別
+            const pCode = workData.getPCode;
+            sumWorkTimeByPCode.set(pCode, sumWorkTimeByPCode.has(pCode) ? sumWorkTimeByPCode.get(pCode) + workTime : workTime);
+
+            // 社員番号別
+            const empNum = workData.getEmployeeNumber;
+            sumWorkTimeByEmpNum.set(empNum, sumWorkTimeByEmpNum.has(empNum) ? sumWorkTimeByEmpNum.get(empNum) + workTime : workTime);
+        });
         // TestConsoleを使って出力してください
+        const workTimeStr = (workTime: number): string => {
+            return `${Math.floor(workTime/60)}時間${workTime%60}分`;
+        }
+        [sumWorkTimeByPos, sumWorkTimeByPCode, sumWorkTimeByEmpNum].forEach(map => map.forEach((value, key) => this.testConsole.println(`${key}: ${workTimeStr(value)}`)));
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 3時間 00分
