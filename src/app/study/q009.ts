@@ -1,6 +1,4 @@
 import { IQuestion, TestConsole, Question } from '../study.service';
-import { BigInteger } from 'big-integer';
-import * as bigInt from 'big-integer';
 
 // 別スレッド（Worker）として動かすファイル（下記ファイルも実装してください）
 const WORKER_FILE = "assets/q009.worker.js";
@@ -32,11 +30,17 @@ const WORKER_FILE = "assets/q009.worker.js";
  */
 @Question("重い処理を別スレッドで実行する")
 export class Q009 implements IQuestion {
+
+    private readonly RESULTS_EXECUTING = "実行中";
+
     constructor(private testConsole: TestConsole) {
     }
 
     async main() {
         // TestConsoleを使って出力してください
+        let workerIndex = 0;
+        const workers = {};
+        const results = {};
         while (true) {
             this.testConsole.print("> ");
             let line = await this.testConsole.readLine();
@@ -44,11 +48,38 @@ export class Q009 implements IQuestion {
                 break;
             }
             if (line == "") {
-                // TODO 実行中状態や結果を表示
+                // 処理結果を表示
+                Object.keys(results).forEach(key => {
+                    const resultsString = String(results[key]);
+                    this.testConsole.println(resultsString);
+                    if (!((resultsString.lastIndexOf(this.RESULTS_EXECUTING) + this.RESULTS_EXECUTING.length
+                        === resultsString.length) &&
+                        this.RESULTS_EXECUTING.length <= resultsString.length)
+                    ) {
+                        delete results[key];
+                    }
+                });
+
             } else {
-                // TODO 新しく別スレッド（Worker）で計算を開始する
+                // スレッド生成し計算開始
+                const worker = new Worker(WORKER_FILE);
+                workers[workerIndex] = worker;
+                results[workerIndex] = line + ": " + this.RESULTS_EXECUTING;
+                worker.postMessage([workerIndex, line]);
+                worker.onmessage = e => {
+                    // 計算結果を受け取りスレッド削除
+                    const workerIndex = e.data[0];
+                    const primaryNumbers = e.data[1];
+                    results[workerIndex] = line + ": " + primaryNumbers.reduce((result, current) => {
+                        return result + "," + current.toString();
+                    })
+                    workers[workerIndex].terminate();
+                    delete workers[workerIndex];
+                }
+                workerIndex++;
             }
         }
     }
 }
-// 完成までの時間: xx時間 xx分
+
+// 完成までの時間: 4時間 00分
