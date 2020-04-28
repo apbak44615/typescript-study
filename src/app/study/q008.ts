@@ -88,7 +88,19 @@ export class Q008 implements IQuestion {
         });
     }
 
-    private checkLine(line: string) {
+    /**
+     * 文字列に埋め込み文字が存在するかチェックする
+     * 閉じられていない区切り文字（"or'or/*）が存在する場合、それもreturnする
+     * 
+     * @param {string} line チェック対象の文字列
+     * @returns {Object} obj
+     * @returns {boolean} obj.isDisplay 表示対象の場合true
+     * @returns {string|undefined} obj.notClosedDefimiter 閉じられていない区切り文字
+     */
+    private checkLine(line: string): {
+        isDisplay,
+        notClosedDefimiter
+    } {
         let checkStartIndex = 0;
         let isDisplay = false;
         let notClosedDefimiter;
@@ -163,8 +175,16 @@ export class Q008 implements IQuestion {
         };
     }
 
-    private print(fileName: string, row: number, content: string) {
-        this.testConsole.println(fileName + '(' + row.toString() + '): ' + content);
+    /**
+     * 入力値をフォーマットで画面に文字列を表示する
+     * fileName(row): content
+     * 
+     * @param fileName ファイル名
+     * @param row ファイル内の行数
+     * @param line ファイル内の行の文字列
+     */
+    private print(fileName: string, row: number, line: string) {
+        this.testConsole.println(fileName + '(' + row.toString() + '): ' + line);
     }
 
     // コメントテスト用
