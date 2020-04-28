@@ -90,9 +90,18 @@ class ListManager {
  */
 @Question("ソートアルゴリズムの作成")
 export class Q004 implements IQuestion {
+    constructor(private testConsole: TestConsole) { }
+
     async main() {
         let data = new ListManager();
-        // TestConsoleを使って出力してください
+        for (let i = 0; i < data.size(); i++) {
+            for (let j = data.size() - 1; j > i; j--) {
+                if (data.compare(j - 1, j) === 1) {
+                    data.exchange(j - 1, j);
+                }
+            }
+        }
+        data.checkResult(this.testConsole);
     }
 }
-// 完成までの時間: xx時間 xx分
+// 完成までの時間: 25分
