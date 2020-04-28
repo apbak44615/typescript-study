@@ -217,4 +217,4 @@ export class Q008 implements IQuestion {
        `;
     }
 }
-// 完成までの時間: 14時間 30分
+// 完成までの時間: 4時間 30分
